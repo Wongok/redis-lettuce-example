@@ -1,12 +1,13 @@
 package boot.test.redis;
 
 import boot.test.redis.config.TestRedisConfig;
-import boot.test.redis.domain.RedisVO;
+import boot.test.redis.domain.RedisDto;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
@@ -19,20 +20,21 @@ public class RedisTest {
     @Test
     public void RedisTest() {
         String key = "testKey";
-        String value = "testValue";
+        ValueOperations<String, Object> vop = redisTemplate.opsForValue();
 
-        redisTemplate.opsForValue().set(key, value);
+        RedisDto setData = new RedisDto("park", "1232");
 
-        Object resultValue =  redisTemplate.opsForValue().get(key);
+        vop.set(key, setData);
 
-        System.out.println("value : " + redisTemplate.opsForValue().get(key));
+        RedisDto getData = (RedisDto) vop.get(key);
+
+        System.out.println("GET-ItemId : " + getData.getItemId());      // park
+        System.out.println("GET-SourceId : " + getData.getSourceId());  // 1232
 
         redisTemplate.delete(key);
 
-        System.out.println("value : " + redisTemplate.opsForValue().get(key));
+        RedisDto getData2 = (RedisDto) vop.get(key);                    // null
 
-        if(!redisTemplate.hasKey(key)){
-            System.out.println("deleted");
-        }
+        System.out.println("GET-getData2 : " + getData2);
     }
 }
